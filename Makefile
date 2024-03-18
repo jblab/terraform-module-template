@@ -17,7 +17,7 @@ init:
 	echo -n "Repository name: "; \
 	read REPO_NAME; \
 	echo -n "GitHub Organization/User: "; \
-	read REPO_URL; \
+	read GH_USER; \
 	echo "Choose a license:"; \
 	echo "  1) MIT"; \
 	echo "  2) GPLv3"; \
@@ -46,10 +46,9 @@ init:
 	read AUTHOR; \
 	YEAR=$(shell date +%Y); \
 	sed -i "s/{{REPO_NAME}}/$$REPO_NAME/g" .docs/header.md; \
-	sed -i "s/{{REPO_URL}}/$$/g" .docs/header.md; \
+	sed -i "s/{{REPO_URL}}/$$GH_USER\/$$REPO_NAME/g" .docs/header.md; \
 	sed -i "s/{{LICENSE}}/$$LICENSE/g" .docs/header.md; \
 	sed -i "s/{{YEAR}}/$$YEAR/g" LICENSE; \
 	sed -i "s/{{AUTHOR}}/$$AUTHOR/g" LICENSE; \
 	sed -i "s/{{REPO_NAME}}/$$REPO_NAME/g" LICENSE
 	mv Makefile.dist Makefile
-
