@@ -1,0 +1,11 @@
+SHELL:=/bin/sh
+.SILENT:
+
+.PHONY: readme hooks init
+readme:
+	curl -sLo .docs/footer.md https://gist.githubusercontent.com/jbonnier/b912640fd05fc9595d6894d2d7f7fce6/raw/jblab-common-footer-template.md
+	terraform-docs markdown --config .docs/terraform-docs.yaml .
+
+hooks:
+	cp .githooks/pre-commit .git/hooks/pre-commit
+	chmod +x .git/hooks/pre-commit

@@ -1,0 +1,35 @@
+name: Terraform actions
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  terraform-format-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Check Terraform Code Formatting
+        run: terraform fmt -check
+
+      - name: Download footer.md
+        run: curl -sLo .docs/footer.md https://gist.githubusercontent.com/jbonnier/b912640fd05fc9595d6894d2d7f7fce6/raw/jblab-common-footer-template.md
+
+      - name: Render terraform docs and push changes back to PR
+        uses: terraform-docs/gh-actions@main
+        with:
+          working-dir: .
+          git-commit-message: "docs: Update README.md (automated action)"
+          config-file: .docs/terraform-docs.yaml
+          output-file: README.md
+          output-method: replace
+          git-push: "true"

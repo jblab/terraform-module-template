@@ -1,0 +1,45 @@
+#!/bin/bash
+#
+# This hook will block a commit if Terraform isn't formatted properly or if README isn't up to date.
+#
+
+# Stash unstaged changes
+git stash -q --keep-index
+
+# Check if terraform is in path
+if ! [[ -f "$(which terraform)" ]]; then
+    echo 1>&2 'Git Hooks (pre-commit): Terraform not in $PATH, can''t reformat.'
+    # Unstash unstaged changes
+    git stash pop -q
+    exit 1
+fi
+
+# Check if files are formatted
+if ! terraform fmt -check 2>/dev/null; then
+    echo 1>&2 'Git Hooks (pre-commit): Please run `terraform fmt` before committing.'
+    # Unstash unstaged changes
+    git stash pop -q
+    exit 1
+fi
+
+# Check if terraform-docs is in the path and if README is up to date
+if ! [[ -f "$(which terraform-docs)" ]]; then
+    echo 1>&2 'Git Hooks (pre-commit): Terraform-docs not in $PATH, can''t update README file.'
+    # Unstash unstaged changes
+    git stash pop -q
+    exit 1
+fi
+
+# Check if terraform-docs is in the path and if README is up to date
+if ! terraform-docs markdown --config .docs/terraform-docs.yaml --output-check . 1>/dev/null  2>/dev/null; then
+    echo 1>&2 'Git Hooks (pre-commit): Terraform-docs README file is out of date.'
+    echo 1>&2 'Please run `make readme` before committing '
+    # Unstash unstaged changes
+    git stash pop -q
+    exit 1
+fi
+
+# Unstash unstaged changes
+git stash pop -q
+
+exit 0
